@@ -1,4 +1,6 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { Image, StyleSheet, Platform, Button, Text } from 'react-native';
+import * as Updates from 'expo-updates';
+import React, { useState } from 'react';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -6,6 +8,22 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
 export default function HomeScreen() {
+  const [updateData, setUpdateData] = useState('');
+
+  async function checkForUpdate() {
+    try {
+      const update = await Updates.checkForUpdateAsync();
+      setUpdateData(JSON.stringify(update));
+      if (update.isAvailable) {
+        await Updates.fetchUpdateAsync();
+        await Updates.reloadAsync();
+      }
+    } catch (e) {
+      console.error(e);
+      setUpdateData('Error checking for updates: ' + e);
+    }
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -16,7 +34,7 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome to a blank app!</ThemedText>
+        <ThemedText type="title">Welcome to app!</ThemedText>
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
@@ -49,6 +67,10 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <Button title="Check for Updates" onPress={checkForUpdate} />
+        <ThemedText>{updateData}</ThemedText>
       </ThemedView>
     </ParallaxScrollView>
   );
